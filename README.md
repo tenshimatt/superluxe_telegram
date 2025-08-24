@@ -26,19 +26,13 @@ The catalog consists of products sorted by categories. Users can add items to th
 
 The ordering process looks like this: the user goes to the `🛍️ Catalog`, selects the desired category, chooses products, and clicks the `🛒 Cart` button.
 
-![cart](data/assets/5.png)
-
 ---
 
 Then, after making sure everything is in place, proceed to checkout by clicking `📦 Place Order`.
 
-![checkout](data/assets/6.png)
-
 ## Add a Product
 
 To add a product, select a category and click the `➕ Add Product` button. Then, fill out the "name-description-image-price" form and confirm.
-
-![add_product](data/assets/1.png)
 
 ## Contacting Administration
 
@@ -93,3 +87,4 @@ ADMINS=123456789,000000000
 ```bash
 python3 app.py
 ```
+
