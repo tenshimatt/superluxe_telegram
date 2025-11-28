@@ -21,4 +21,4 @@ if WEBHOOK_HOST and WEBHOOK_PATH:
 else:
     WEBHOOK_URL = None
 
-ADMINS = list(map(int, os.getenv("ADMINS", "").split(",")))
+ADMINS = [int(x.strip()) for x in os.getenv("ADMINS", "").split(",") if x.strip()]

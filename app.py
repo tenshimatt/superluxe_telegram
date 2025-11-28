@@ -1,4 +1,3 @@
-
 import os
 import handlers
 from aiogram import executor, types
@@ -12,49 +11,49 @@ filters.setup(dp)
 
 WEBAPP_HOST = "0.0.0.0"
 WEBAPP_PORT = int(os.environ.get("PORT", 5000))
-user_message = 'Пользователь'
-admin_message = 'Админ'
+user_message = "User"
+admin_message = "Admin"
 
 
-@dp.message_handler(commands='start')
+@dp.message_handler(commands="start")
 async def cmd_start(message: types.Message):
-
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
 
     markup.row(user_message, admin_message)
 
-    await message.answer('''Привет! 👋
+    await message.answer(
+        """🎨 <b>Welcome to SUPERLUXE</b> 🎨
 
-🤖 Я бот-магазин по подаже товаров любой категории.
-    
-🛍️ Чтобы перейти в каталог и выбрать приглянувшиеся товары возпользуйтесь командой /menu.
+🤖 Your exclusive gateway to fine art and Web3 innovations.
 
-💰 Пополнить счет можно через Яндекс.кассу, Сбербанк или Qiwi.
+🛍️ <a href="https://superluxe.io/collections/">Explore our curated collections</a> using the /menu command.
 
-❓ Возникли вопросы? Не проблема! Команда /sos поможет связаться с админами, которые постараются как можно быстрее откликнуться.
+💰 <a href="https://superluxe.io/artx-token/">Purchase using $ARTX tokens</a> or traditional payment methods.
 
-🤝 Заказать похожего бота? Свяжитесь с разработчиком <a href="https://t.me/NikolaySimakov">Nikolay Simakov</a>, он не кусается)))
-    ''', reply_markup=markup)
+❓ Questions? Use /sos to connect with our art specialists.
+
+🌟 <i>"Where Fine Art Meets Web3"</i>
+    """,
+        reply_markup=markup,
+    )
 
 
 @dp.message_handler(text=user_message)
 async def user_mode(message: types.Message):
-
     cid = message.chat.id
     if cid in config.ADMINS:
         config.ADMINS.remove(cid)
 
-    await message.answer('Включен пользовательский режим.', reply_markup=ReplyKeyboardRemove())
+    await message.answer("User mode enabled.", reply_markup=ReplyKeyboardRemove())
 
 
 @dp.message_handler(text=admin_message)
 async def admin_mode(message: types.Message):
-
     cid = message.chat.id
     if cid not in config.ADMINS:
         config.ADMINS.append(cid)
 
-    await message.answer('Включен админский режим.', reply_markup=ReplyKeyboardRemove())
+    await message.answer("Admin mode enabled.", reply_markup=ReplyKeyboardRemove())
 
 
 async def on_startup(dp):
@@ -74,11 +73,10 @@ async def on_shutdown():
     logging.warning("Bot down")
 
 
-if __name__ == '__main__':
-
-    if (("HEROKU_APP_NAME" in list(os.environ.keys())) or
-        ("RAILWAY_PUBLIC_DOMAIN" in list(os.environ.keys()))):
-
+if __name__ == "__main__":
+    if ("HEROKU_APP_NAME" in list(os.environ.keys())) or (
+        "RAILWAY_PUBLIC_DOMAIN" in list(os.environ.keys())
+    ):
         executor.start_webhook(
             dispatcher=dp,
             webhook_path=config.WEBHOOK_PATH,
@@ -90,5 +88,4 @@ if __name__ == '__main__':
         )
 
     else:
-
         executor.start_polling(dp, on_startup=on_startup, skip_updates=False)
