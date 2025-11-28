@@ -74,9 +74,17 @@ async def on_shutdown():
 
 
 if __name__ == "__main__":
-    if ("HEROKU_APP_NAME" in list(os.environ.keys())) or (
-        "RAILWAY_PUBLIC_DOMAIN" in list(os.environ.keys())
-    ):
+    # Debug: Print environment info
+    print(f"RAILWAY_PUBLIC_DOMAIN: {os.environ.get('RAILWAY_PUBLIC_DOMAIN')}")
+    print(f"BOT_TOKEN present: {'Yes' if config.BOT_TOKEN else 'No'}")
+    print(f"WEBHOOK_URL: {config.WEBHOOK_URL}")
+
+    # Force polling mode for Railway (webhooks don't work well in containers)
+    if "RAILWAY_PUBLIC_DOMAIN" in os.environ:
+        print("Railway detected - using polling mode...")
+        executor.start_polling(dp, on_startup=on_startup, skip_updates=False)
+    elif "HEROKU_APP_NAME" in os.environ:
+        print("Starting webhook mode for Heroku...")
         executor.start_webhook(
             dispatcher=dp,
             webhook_path=config.WEBHOOK_PATH,
@@ -86,6 +94,6 @@ if __name__ == "__main__":
             host=WEBAPP_HOST,
             port=WEBAPP_PORT,
         )
-
     else:
+        print("Starting polling mode...")
         executor.start_polling(dp, on_startup=on_startup, skip_updates=False)
