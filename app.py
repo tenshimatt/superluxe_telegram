@@ -74,14 +74,43 @@ async def on_shutdown():
 
 
 if __name__ == "__main__":
-    # Debug: Print environment info
-    print(f"RAILWAY_PUBLIC_DOMAIN: {os.environ.get('RAILWAY_PUBLIC_DOMAIN')}")
-    print(f"BOT_TOKEN present: {'Yes' if config.BOT_TOKEN else 'No'}")
-    print(f"WEBHOOK_URL: {config.WEBHOOK_URL}")
+    # Debug: Print ALL environment variables
+    print("=== ENVIRONMENT VARIABLES ===")
+    for key, value in os.environ.items():
+        if 'BOT' in key or 'ADMIN' in key or 'RAILWAY' in key or 'WEBHOOK' in key:
+            print(f"{key}: {value}")
+        elif key in ['PATH', 'HOME', 'PWD']:
+            continue  # Skip common env vars
+        else:
+            print(f"{key}: [SET]")
 
-    # Force polling mode for Railway (webhooks don't work well in containers)
+    print("\n=== CONFIG VALUES ===")
+    print(f"BOT_TOKEN from config: {'***SET***' if config.BOT_TOKEN else 'NOT SET'}")
+    print(f"ADMINS from config: {config.ADMINS}")
+    print(f"WEBHOOK_URL from config: {config.WEBHOOK_URL}")
+
+    # Exit if no token
+    if not config.BOT_TOKEN:
+        print("\n❌ ERROR: BOT_TOKEN not found! Check Railway environment variables.")
+        exit(1)
+
+    # Force polling mode for Railway (webhooks don't work in containers)
     if "RAILWAY_PUBLIC_DOMAIN" in os.environ:
-        print("Railway detected - using polling mode...")
+        print("\n✅ Railway detected - using polling mode...")
+        executor.start_polling(dp, on_startup=on_startup, skip_updates=False)
+    elif "HEROKU_APP_NAME" in os.environ:
+        print("\n✅ Starting webhook mode for Heroku...")
+        executor.start_webhook(
+            dispatcher=dp,
+            webhook_path=config.WEBHOOK_PATH,
+            on_startup=on_startup,
+            on_shutdown=on_shutdown,
+            skip_updates=True,
+            host=WEBAPP_HOST,
+            port=WEBAPP_PORT,
+        )
+    else:
+        print("\n✅ Starting polling mode...")
         executor.start_polling(dp, on_startup=on_startup, skip_updates=False)
     elif "HEROKU_APP_NAME" in os.environ:
         print("Starting webhook mode for Heroku...")
